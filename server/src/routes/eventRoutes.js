@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { eventController } from '../controllers/eventController.js'
 import { registrationController } from '../controllers/registrationController.js'
+import { requireAdminAuth } from '../middleware/authMiddleware.js'
 
 const router = Router()
 
@@ -8,12 +9,12 @@ const router = Router()
 router.get('/', eventController.getEvents)
 router.get('/:id', eventController.getEventById)
 
-// Direct event registration endpoint (alias for /api/registrations)
+// Public direct registration alias
 router.post('/:id/register', registrationController.createRegistration)
 
-// Event mutation endpoints (CRUD)
-router.post('/', eventController.createEvent)
-router.put('/:id', eventController.updateEvent)
-router.delete('/:id', eventController.deleteEvent)
+// Protected event mutation endpoints (Admin JWT Required)
+router.post('/', requireAdminAuth, eventController.createEvent)
+router.put('/:id', requireAdminAuth, eventController.updateEvent)
+router.delete('/:id', requireAdminAuth, eventController.deleteEvent)
 
 export default router

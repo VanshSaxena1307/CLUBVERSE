@@ -82,10 +82,10 @@ export const registrationService = {
     const db = getDb()
     let query = db
       .from('registrations')
-      .select('*, events(id, title, category, date)')
+      .select('*, events(id, title, category, date, venue)')
       .order('registered_at', { ascending: false })
 
-    if (eventId) {
+    if (eventId && eventId !== 'all') {
       query = query.eq('event_id', eventId)
     }
 
@@ -94,5 +94,68 @@ export const registrationService = {
       throw new Error(`Failed to fetch registrations: ${error.message}`)
     }
     return data || []
+  },
+
+  /**
+   * Fetch single registration by ID
+   */
+  async getRegistrationById(id) {
+    const db = getDb()
+    const { data, error } = await db
+      .from('registrations')
+      .select('*, events(id, title, category, date, venue)')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (error) {
+      throw new Error(`Failed to fetch registration: ${error.message}`)
+    }
+    return data
+  },
+
+  /**
+   * Fetch public registrations by student email (joined with event details)
+   */
+  async getRegistrationsByEmail(email) {
+    const db = getDb()
+    const normalizedEmail = email.trim().toLowerCase()
+
+    const { data, error } = await db
+      .from('registrations')
+      .select('id, event_id, name, email, college, year, phone, registered_at, events(id, title, category, date, time, venue, image_url, description)')
+      .ilike('email', normalizedEmail)
+      .order('registered_at', { ascending: false })
+
+    if (error) {
+      throw new Error(`Failed to lookup registrations: ${error.message}`)
+    }
+
+    return (data || []).map((reg) => ({
+      ...reg,
+      event: reg.events || null,
+    }))
+  },
+
+  /**
+   * Fetch single registration ticket details by ID (joined with event details)
+   */
+  async getTicketById(id) {
+    const db = getDb()
+    const { data, error } = await db
+      .from('registrations')
+      .select('id, event_id, name, email, college, year, phone, registered_at, events(id, title, category, date, time, venue, image_url, description)')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (error) {
+      throw new Error(`Failed to fetch ticket: ${error.message}`)
+    }
+
+    if (!data) return null
+
+    return {
+      ...data,
+      event: data.events || null,
+    }
   },
 }

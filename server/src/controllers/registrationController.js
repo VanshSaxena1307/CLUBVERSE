@@ -6,10 +6,10 @@ const PHONE_REGEX = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]{6,15}$/
 export const registrationController = {
   /**
    * POST /api/registrations (or /api/events/:id/register)
+   * Public: Students sign up for events without login
    */
   async createRegistration(req, res, next) {
     try {
-      // Support event_id from URL params (/api/events/:id/register) or request body (/api/registrations)
       const event_id = req.params.id || req.body.event_id
       const { name, email, college, year, phone } = req.body
 
@@ -66,6 +66,7 @@ export const registrationController = {
 
   /**
    * GET /api/registrations
+   * Protected: Admin attendee directory
    */
   async getRegistrations(req, res, next) {
     try {
@@ -76,6 +77,96 @@ export const registrationController = {
         success: true,
         count: registrations.length,
         data: registrations,
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  /**
+   * GET /api/registrations/:id
+   * Protected: Single registration detail
+   */
+  async getRegistrationById(req, res, next) {
+    try {
+      const { id } = req.params
+      const registration = await registrationService.getRegistrationById(id)
+
+      if (!registration) {
+        return res.status(404).json({
+          success: false,
+          error: 'Registration record not found',
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        data: registration,
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  /**
+   * GET /api/registrations/by-email?email=<email>
+   * Public: Student lookup of their registered events
+   */
+  async getRegistrationsByEmail(req, res, next) {
+    try {
+      const { email } = req.query
+      if (!email || typeof email !== 'string' || !email.trim()) {
+        return res.status(400).json({
+          success: false,
+          error: 'Email parameter is required',
+        })
+      }
+
+      const trimmedEmail = email.trim()
+      if (!EMAIL_REGEX.test(trimmedEmail)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Please provide a valid email address',
+        })
+      }
+
+      const registrations = await registrationService.getRegistrationsByEmail(trimmedEmail)
+
+      res.status(200).json({
+        success: true,
+        count: registrations.length,
+        data: registrations,
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  /**
+   * GET /api/registrations/:id/ticket
+   * Public: Retrieve digital event ticket by registration ID
+   */
+  async getTicketById(req, res, next) {
+    try {
+      const { id } = req.params
+      if (!id || typeof id !== 'string') {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid registration ID',
+        })
+      }
+
+      const ticket = await registrationService.getTicketById(id.trim())
+      if (!ticket) {
+        return res.status(404).json({
+          success: false,
+          error: 'Event ticket not found for this registration ID',
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        data: ticket,
       })
     } catch (error) {
       next(error)

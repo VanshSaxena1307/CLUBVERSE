@@ -108,6 +108,12 @@ export default function EventRegisterPage() {
       }
 
       const response = await registrationService.registerForEvent(payload)
+      // Save email for quick lookup on My Registrations
+      try {
+        localStorage.setItem('clubverse_student_email', formData.email.trim())
+      } catch {
+        // Ignore localStorage restrictions
+      }
       setSuccessResult(response)
     } catch (err) {
       setFormError(err.message || 'Failed to submit registration. Please try again.')
@@ -154,31 +160,35 @@ export default function EventRegisterPage() {
           </span>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
-            You&apos;re Officially Registered!
+            Registration Successful!
           </h1>
 
-          <p className="text-sm text-slate-600 mb-6">
-            Your RSVP has been recorded in the club registry for{' '}
-            <strong className="text-slate-800">{event.title}</strong>.
+          <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+            Your RSVP has been confirmed for{' '}
+            <strong className="text-slate-800">{event.title}</strong>. A digital ticket has been generated for your entry.
           </p>
 
           {/* Registration Details Summary Card */}
           <div className="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 text-left text-xs space-y-2.5 mb-8">
             <div className="flex justify-between border-b border-emerald-100/60 pb-2">
-              <span className="text-slate-400 font-medium">Registration ID</span>
-              <span className="font-mono font-semibold text-emerald-800">{successResult.registrationId}</span>
+              <span className="text-slate-400 font-medium">Event Name</span>
+              <span className="font-semibold text-slate-800 text-right">{event.title}</span>
             </div>
             <div className="flex justify-between border-b border-emerald-100/60 pb-2">
-              <span className="text-slate-400 font-medium">Participant Name</span>
+              <span className="text-slate-400 font-medium">Student Name</span>
               <span className="font-semibold text-slate-800">{formData.name}</span>
+            </div>
+            <div className="flex justify-between border-b border-emerald-100/60 pb-2">
+              <span className="text-slate-400 font-medium">Registration ID</span>
+              <span className="font-mono font-semibold text-emerald-800">{successResult.registrationId}</span>
             </div>
             <div className="flex justify-between border-b border-emerald-100/60 pb-2">
               <span className="text-slate-400 font-medium">Email Address</span>
               <span className="font-semibold text-slate-800">{formData.email}</span>
             </div>
             <div className="flex justify-between border-b border-emerald-100/60 pb-2">
-              <span className="text-slate-400 font-medium">Scheduled Date</span>
-              <span className="font-semibold text-slate-800">{formatDate(event.date)} ({event.time})</span>
+              <span className="text-slate-400 font-medium">Date &amp; Time</span>
+              <span className="font-semibold text-slate-800">{formatDate(event.date)} at {event.time}</span>
             </div>
             <div className="flex justify-between pt-0.5">
               <span className="text-slate-400 font-medium">Venue</span>
@@ -186,19 +196,25 @@ export default function EventRegisterPage() {
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Action Buttons as requested */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
-              to="/events"
-              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs"
+              to={`/my-registrations/${successResult.registrationId}/ticket`}
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs flex items-center justify-center gap-1.5"
             >
-              Explore More Events
+              <span>View My Ticket</span>
             </Link>
             <Link
-              to="/"
-              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:text-emerald-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors"
+              to={`/my-registrations?email=${encodeURIComponent(formData.email.trim())}`}
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:text-emerald-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors flex items-center justify-center gap-1.5"
             >
-              Back to Home
+              <span>View My Registrations</span>
+            </Link>
+            <Link
+              to="/events"
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 bg-transparent hover:bg-slate-100 transition-colors flex items-center justify-center"
+            >
+              <span>Back to Events</span>
             </Link>
           </div>
         </div>

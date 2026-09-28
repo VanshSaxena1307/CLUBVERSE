@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Compass, Calendar, Shield, Menu, X } from 'lucide-react'
+import { Compass, Calendar, Ticket, Shield, Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -14,6 +14,7 @@ export default function Navbar() {
   const navLinks = [
     { label: 'Home', path: '/', icon: Compass },
     { label: 'Events', path: '/events', icon: Calendar },
+    { label: 'My Registrations', path: '/my-registrations', icon: Ticket },
   ]
 
   return (
