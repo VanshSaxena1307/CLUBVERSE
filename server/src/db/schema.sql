@@ -61,7 +61,7 @@ INSERT INTO admins (id, email, password_hash)
 VALUES (
   'a0000000-0000-0000-0000-000000000001',
   'admin@clubverse.edu',
-  '$2a$10$rC81n0tJ/pP0d0t59O6c7eHwLq27sK8tD9N5gQ1h3m7j4z6y8x0w2'
+  '$2b$10$VdnhlS4ZhDTEZGONgObx5erBZJyZE4UJxJ6UF8AicjFQCRzIxDSR6'
 )
 ON CONFLICT (email) DO NOTHING;
 
