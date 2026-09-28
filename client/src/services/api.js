@@ -1,4 +1,26 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+function getApiBaseUrl() {
+  const envUrl = import.meta.env.VITE_API_URL
+
+  if (!envUrl || !envUrl.trim()) {
+    if (import.meta.env.PROD) {
+      console.warn(
+        '[CLUBVERSE] Warning: VITE_API_URL is missing in production. Falling back to local default. Please set VITE_API_URL in your Vercel project settings.'
+      )
+    }
+    return 'http://localhost:5000/api'
+  }
+
+  let cleaned = envUrl.trim().replace(/\/+$/, '')
+
+  // Ensure /api suffix is present so endpoints like /events resolve correctly
+  if (!cleaned.endsWith('/api')) {
+    cleaned = `${cleaned}/api`
+  }
+
+  return cleaned
+}
+
+const API_BASE_URL = getApiBaseUrl()
 
 /**
  * Lightweight fetch wrapper for CLUBVERSE backend API.

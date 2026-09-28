@@ -7,10 +7,35 @@ import { errorHandler } from './middleware/errorMiddleware.js'
 
 const app = express()
 
-// CORS configuration supporting client origin
+// CORS configuration supporting local development and deployed Vercel production frontend
+const defaultAllowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://clubverse-three.vercel.app',
+]
+
+const envOrigins = env.CLIENT_URL
+  ? env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/+$/, ''))
+  : []
+
+const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...envOrigins].filter(Boolean)))
+
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: (origin, callback) => {
+      // Allow non-browser requests (e.g. curl, postman, health check)
+      if (!origin) return callback(null, true)
+
+      const normalized = origin.trim().replace(/\/+$/, '')
+      if (
+        allowedOrigins.includes(normalized) ||
+        /^https:\/\/clubverse.*\.vercel\.app$/.test(normalized)
+      ) {
+        return callback(null, true)
+      }
+
+      return callback(null, false)
+    },
     credentials: true,
   })
 )
