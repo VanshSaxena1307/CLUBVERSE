@@ -1,23 +1,19 @@
 import { Router } from 'express'
+import { eventController } from '../controllers/eventController.js'
+import { registrationController } from '../controllers/registrationController.js'
 
 const router = Router()
 
-/**
- * Structural Route Placeholder: Event Routes (/api/events)
- * Full implementation (GET, POST, PUT, DELETE) scheduled for Phase 2.
- */
-router.get('/', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Events listing endpoint placeholder — full CRUD scheduled for Phase 2',
-  })
-})
+// Public event browsing endpoints
+router.get('/', eventController.getEvents)
+router.get('/:id', eventController.getEventById)
 
-router.get('/:id', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Event detail endpoint placeholder — full CRUD scheduled for Phase 2',
-  })
-})
+// Direct event registration endpoint (alias for /api/registrations)
+router.post('/:id/register', registrationController.createRegistration)
+
+// Event mutation endpoints (CRUD)
+router.post('/', eventController.createEvent)
+router.put('/:id', eventController.updateEvent)
+router.delete('/:id', eventController.deleteEvent)
 
 export default router

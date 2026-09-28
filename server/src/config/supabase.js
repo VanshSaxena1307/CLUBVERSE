@@ -5,7 +5,7 @@ let supabase = null
 
 if (isSupabaseConfigured) {
   try {
-    supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+    supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
